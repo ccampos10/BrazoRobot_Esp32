@@ -1,3 +1,4 @@
+#include <brazo.h>
 #include <ESP32Servo.h>
 
 // motores brazo
@@ -26,6 +27,9 @@ void setup() {
 }
 
 void loop() {
+
+  // agragar pantalla lcd
+  // ver como programar un motor a pasos
 
   // proceso paralelo a las etapas
   if (!etapa_1 && boton_esta_on()){
