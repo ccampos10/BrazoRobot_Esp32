@@ -1,5 +1,5 @@
 #include <brazo.h>
-#include <ESP32Servo.h>
+#include <pantalla.h>
 
 // motores brazo
 const int pin_motor_base = -1;
@@ -10,6 +10,10 @@ const int pin_motor_garra = -1;
 // sensor de proximidad
 const int pin_prox_echo = -1;
 const int pin_prox_triger = -1;
+
+// coneccion serial
+// pin 21 sda
+// pin 22 scl
 
 const int pin_motor_retenedor = -1;
 const int pin_temperatrua = -1;
