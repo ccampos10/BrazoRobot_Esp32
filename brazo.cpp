@@ -2,20 +2,33 @@
 #include <brazo.h>
 #include <ESP32Servo.h>
 
-static Servo servo_base;
-static Servo servo_antebrazo;
-static Servo servo_brazo;
-static Servo servo_garra;
+const int SERVO_BASE_CERO_CORRECCION = 0;
+const int SERVO_ANTEBRAZO_CERO_CORRECCION = 20;
+const int SERVO_BRAZO_CERO_CORRECCION = 55;
+const int SERVO_GARRA_CERO_CORRECCION = 0;
+
+const int SERVO_BASE_EXTENDIDO_CORRECCION = 180;
+const int SERVO_ANTEBRAZO_EXTENDIDO_CORRECCION = 150;
+const int SERVO_BRAZO_EXTENDIDO_CORRECCION = 140;
+const int SERVO_GARRA_EXTENDIDO_CORRECCION = 0;
+
+Servo servo_base;
+Servo servo_antebrazo;
+Servo servo_brazo;
+Servo servo_garra;
 static float antebrazo_largo = -1;
 static float brazo_largo = -1;
 static bool seteado = false;
 
+float roundDos(float numero) {
+  return round(numero * 10000) / 10000;
+}
+
 void brazo_init(int pin_motor_base, int pin_motor_antebrazo, int pin_motor_brazo, int pin_motor_garra, float antebrazo_largo_E, float brazo_largo_E){
-  servo_base.attach(pin_motor_base);
-  servo_brazo.attach(pin_motor_brazo);
-  servo_antebrazo.attach(pin_motor_antebrazo);
-  servo_garra.attach(pin_motor_garra);
-  Serial.println(pin_motor_brazo);
+  servo_base.attach(pin_motor_base,500,2500);
+  servo_antebrazo.attach(pin_motor_antebrazo,500,2500);
+  servo_brazo.attach(pin_motor_brazo,500,2500);
+  servo_garra.attach(pin_motor_garra,500,2500);
   antebrazo_largo = (float)antebrazo_largo_E;
   brazo_largo = (float)brazo_largo_E;
   seteado = true;
@@ -23,8 +36,8 @@ void brazo_init(int pin_motor_base, int pin_motor_antebrazo, int pin_motor_brazo
 
 void brazo_set_cero(){
   servo_base.write(0);
-  servo_brazo.write(0);
-  servo_antebrazo.write(0);
+  servo_antebrazo.write(20);
+  servo_brazo.write(90);
   servo_garra.write(0);
 }
 
@@ -38,23 +51,24 @@ int brazo_set_pos(float x, float y, float z){
   // float z_recal = z;
   float x_recal = sqrt(pow(x,2)+pow(y,2)); // recalcular la pos x;
   float z_recal = z;
-  if (sqrt(pow(x_recal,2)+pow(z,2)) > antebrazo_largo+brazo_largo) {
+  if (sqrt(pow(x_recal,2)+pow(z,2)) > antebrazo_largo+brazo_largo) { // el recal deveria ser si el eje 'z' y 'x' salen del espacio de movimientos
     x_recal = x_recal/(sqrt(pow(x_recal,2)+pow(z,2)))*(float)(antebrazo_largo+brazo_largo);
     z_recal = z_recal/(sqrt(pow(x_recal,2)+pow(z,2)))*(float)(antebrazo_largo+brazo_largo);
   }
 
-  // Serial.println(b);
-  // Serial.println(c);
-  // Serial.println();
+  Serial.println();
+  Serial.println(x_recal);
+  Serial.println(z_recal);
+  Serial.println();
 
   float d = (pow(brazo_largo,2)-pow(antebrazo_largo,2)-pow(x_recal,2)-pow(z_recal,2))/(-2.0);
   float a = pow(z_recal,2)-pow(x_recal,2);
   float b = 2.0*x_recal*d;
   float c = pow(z_recal,2)*pow(antebrazo_largo,2)-pow(d,2);
-  float x1 = (-b + sqrt(round(pow(b,2) - 4.0*a*c)))/(2.0*a);
-  float x2 = (-b - sqrt(round(pow(b,2) - 4.0*a*c)))/(2.0*a);
+  float x1 = (-b + sqrt(roundDos(pow(b,2) - 4.0*a*c)))/(2.0*a);
+  float x2 = (-b - sqrt(roundDos(pow(b,2) - 4.0*a*c)))/(2.0*a);
 
-  Serial.println(round((pow(b,2) - 4.0*a*c)));
+  Serial.println(roundDos((pow(b,2) - 4.0*a*c)));
   Serial.println(d);
   Serial.println(a);
   Serial.println(b);
@@ -66,9 +80,17 @@ int brazo_set_pos(float x, float y, float z){
   int angulo_antebrazo;
   int angulo_brazo;
   float y1;
-  if(d == z_recal*sqrt(pow(antebrazo_largo,2)-pow(x1,2))+x1*x_recal){
+
+
+  Serial.println();
+  Serial.println(d);
+  Serial.println(z_recal*sqrt(pow(antebrazo_largo,2)-pow(x1,2))+x1*x_recal);
+  Serial.println();
+  
+  if(roundDos(d) == roundDos(z_recal*sqrt(pow(antebrazo_largo,2)-pow(x1,2))+x1*x_recal)){
     Serial.println("1");
     y1 = sqrt(pow(antebrazo_largo,2)-pow(x1,2));
+    Serial.println(y1);
     angulo_antebrazo = atan(y1/x1)*180.0/M_PI;
     angulo_brazo = atan((y1-z_recal)/(x_recal-x1))*180.0/M_PI;
     
@@ -76,8 +98,9 @@ int brazo_set_pos(float x, float y, float z){
   else {
     Serial.println("2");
     y1 = sqrt(pow(antebrazo_largo,2)-pow(x2,2));
+    Serial.println(y1);
     angulo_antebrazo = atan(y1/x_recal)*180.0/M_PI;
-    angulo_brazo = atan((z_recal-y1)/(x_recal-x2))*180.0/M_PI;
+    angulo_brazo = atan((y1-z_recal)/(x_recal-x2))*180.0/M_PI;
   }
 
   Serial.println(angulo_base);
@@ -89,14 +112,14 @@ int brazo_set_pos(float x, float y, float z){
 
   servo_base.write(angulo_base);
   servo_antebrazo.write(angulo_antebrazo);
-  servo_brazo.write(angulo_brazo);
+  servo_brazo.write(SERVO_BRAZO_EXTENDIDO_CORRECCION-angulo_brazo);
 
   return 0;
 }
 // inutil
 int brazo_reposo(){
   if (!seteado) { return -1; }
-  return brazo_set_pos(-1,-1,-1);
+  return brazo_set_pos(0.001,7,0.0001);
 }
 
 int brazo_soldar(){
