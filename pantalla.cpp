@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include <stdint.h>
 #include <LiquidCrystal_I2C.h>
 
@@ -8,7 +9,7 @@ uint8_t barras[5][8] = {{0x10,0x10,0x10,0x10,0x10,0x10,0x10,0x10}, // 1/5
                       {0x18,0x18,0x18,0x18,0x18,0x18,0x18,0x18}, // 2/5
                       {0x1c,0x1c,0x1c,0x1c,0x1c,0x1c,0x1c,0x1c}, // 3/5
                       {0x1e,0x1e,0x1e,0x1e,0x1e,0x1e,0x1e,0x1e}, // 4/5
-                      {0x1f,0x1f,0x1f,0x1f,0x1f,0x1f,0x1f,0x1f}} // 5/5
+                      {0x1f,0x1f,0x1f,0x1f,0x1f,0x1f,0x1f,0x1f}}; // 5/5
 
 // Iniciar la pantalla lcd
 void patnalla_init(){
@@ -37,24 +38,24 @@ void pantalla_setPorcentaje(int porcentaje, int caracteres) {
 
 // Limpiar todos los elementos en pantalla
 void pantalla_limpiar(){
-  lcd.clear()
+  lcd.clear();
 }
 
 
 // Mostrar un mensaje por pantalla de maximo 16 carracteres.
-void pantalla_print(char[] mens, int fila, bool centrado) {
+void pantalla_print(char* mens, size_t mens_len, int fila, bool centrado) {
   // el mensaje no puede tener mas de 16 caracteres.
   // se puede poner mas de 16 caracteres, pero solo muestra 16.
   // y a partir de una cantidad de caracteres se bugea y los imprime en la fila de abajo
-  if (mens.length() > 16) {return;}
-  if (centrado) { lcd.setCursor((16-mens.length())/2, fila); }
+  if (mens_len > 16) {return;}
+  if (centrado) { lcd.setCursor((16-mens_len)/2, fila); }
   else { lcd.setCursor(0, fila); }
   lcd.setCursor(0, fila);
   lcd.print(mens);
 }
 
 // Mostrar un mensaje por pantalla en una posicion espesifica
-void pantalla_print_en(char[] mens, int fila, int columna) {
+void pantalla_print_en(char* mens, int fila, int columna) {
   lcd.setCursor(columna, fila);
   lcd.print(mens);
 }
