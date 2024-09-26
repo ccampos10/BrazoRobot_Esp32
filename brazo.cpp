@@ -4,13 +4,19 @@
 
 const int SERVO_BASE_CERO_CORRECCION = 0;
 const int SERVO_ANTEBRAZO_CERO_CORRECCION = 20;
-const int SERVO_BRAZO_CERO_CORRECCION = 55;
+const int SERVO_BRAZO_CERO_CORRECCION = 140; // 55
 const int SERVO_GARRA_CERO_CORRECCION = 0;
 
 const int SERVO_BASE_EXTENDIDO_CORRECCION = 180;
 const int SERVO_ANTEBRAZO_EXTENDIDO_CORRECCION = 150;
-const int SERVO_BRAZO_EXTENDIDO_CORRECCION = 140;
+const int SERVO_BRAZO_EXTENDIDO_CORRECCION = 55; // 140
 const int SERVO_GARRA_EXTENDIDO_CORRECCION = 0;
+
+const int SERVO_GARRA_CERRADO = 30;
+
+void brazo_pinza_cerrar() {
+  servo_garra.write(SERVO_GARRA_CERRADO);
+}
 
 Servo servo_base;
 Servo servo_antebrazo;
@@ -35,10 +41,32 @@ void brazo_init(int pin_motor_base, int pin_motor_antebrazo, int pin_motor_brazo
 }
 
 void brazo_set_cero(){
-  servo_base.write(0);
+  servo_base.write(90);
   servo_antebrazo.write(20);
   servo_brazo.write(90);
   servo_garra.write(0);
+}
+
+void mover_base(int angulo) {
+  servo_base.write(angulo);
+}
+
+void mover_antebrazo(int angulo){
+  angulo = map(angulo, 0, 180, SERVO_ANTEBRAZO_CERO_CORRECCION, SERVO_ANTEBRAZO_EXTENDIDO_CORRECCION);
+  int angulo_var = servo_antebrazo.read() - angulo;
+  // if (angulo_var<0) { angulo_var = angulo_var*-1; }
+  int angulo2 = servo_brazo.read()-angulo_var;
+  angulo2 = map(angulo2, 0, 180, SERVO_BRAZO_CERO_CORRECCION, SERVO_BRAZO_EXTENDIDO_CORRECCION);
+
+  servo_antebrazo.write(angulo);
+  Serial.println(angulo);
+  Serial.println(angulo2);
+  delay(50);
+  servo_brazo.write(angulo2);
+}
+
+void mover_brazo(int angulo){
+  servo_brazo.write(map(angulo, 0, 180, SERVO_BRAZO_CERO_CORRECCION, SERVO_BRAZO_EXTENDIDO_CORRECCION));
 }
 
 int brazo_set_pos(float x, float y, float z){
@@ -81,7 +109,6 @@ int brazo_set_pos(float x, float y, float z){
   int angulo_brazo;
   float y1;
 
-
   Serial.println();
   Serial.println(d);
   Serial.println(z_recal*sqrt(pow(antebrazo_largo,2)-pow(x1,2))+x1*x_recal);
@@ -93,8 +120,8 @@ int brazo_set_pos(float x, float y, float z){
     Serial.println(y1);
     angulo_antebrazo = atan(y1/x1)*180.0/M_PI;
     angulo_brazo = atan((y1-z_recal)/(x_recal-x1))*180.0/M_PI;
-    
   }
+
   else {
     Serial.println("2");
     y1 = sqrt(pow(antebrazo_largo,2)-pow(x2,2));
@@ -116,6 +143,7 @@ int brazo_set_pos(float x, float y, float z){
 
   return 0;
 }
+
 // inutil
 int brazo_reposo(){
   if (!seteado) { return -1; }

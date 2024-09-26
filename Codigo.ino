@@ -10,22 +10,22 @@
 Servo retenedor;
 
 // motores brazo
-const int pin_motor_base = -1;
-const int pin_motor_antebrazo = -1;
-const int pin_motor_brazo = -1;
-const int pin_motor_garra = -1;
+const int pin_motor_base = 17;
+const int pin_motor_antebrazo = 5;
+const int pin_motor_brazo = 18;
+const int pin_motor_garra = 19;
 
 // sensor de proximidad
-const int pin_prox_echo = -1;
-const int pin_prox_triger = -1;
+const int pin_prox_echo = 34;
+const int pin_prox_triger = 35;
 
 // coneccion serial
 // pin 21 sda
 // pin 22 scl
 
-const int pin_motor_retenedor = -1;
-const int pin_temperatrua = -1;
-const int pin_boton = -1;
+const int pin_motor_retenedor = 23;
+const int pin_temperatrua = 16;
+const int pin_boton = 4;
 
 bool etapa_1 = true; // etapa inicial
 bool etapa_2 = false;
