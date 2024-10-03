@@ -147,15 +147,21 @@ int brazo_set_pos(float x, float y, float z){
 // inutil
 int brazo_reposo(){
   if (!seteado) { return -1; }
-  return brazo_set_pos(0.001,7,0.0001);
+  
+  mover_base(90);
+  mover_brazo(90);
+  mover_antebrazo(90);
 }
 
 int brazo_soldar(){
   if (!seteado) { return -1; }
-  int puntos[4][3] = {{-1,-1,-1},{-1,-1,-1},{-1,-1,-1},{-1,-1,-1}}; // no recuerdo el orden
+  // int puntos[4][3] = {{-1,-1,-1},{-1,-1,-1},{-1,-1,-1},{-1,-1,-1}}; // no recuerdo el orden
 
-  for (int i = 0; i<4; i++ ){
-    if (brazo_set_pos(puntos[i][0], puntos[i][1], puntos[i][2]) != 0) {return -1;}
-  }
+  // for (int i = 0; i<4; i++ ){
+  //   if (brazo_set_pos(puntos[i][0], puntos[i][1], puntos[i][2]) != 0) {return -1;}
+  // }
+
+  
+
   return 0;
 }
