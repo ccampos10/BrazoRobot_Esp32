@@ -14,10 +14,6 @@ const int SERVO_GARRA_EXTENDIDO_CORRECCION = 0;
 
 const int SERVO_GARRA_CERRADO = 30;
 
-void brazo_pinza_cerrar() {
-  servo_garra.write(SERVO_GARRA_CERRADO);
-}
-
 Servo servo_base;
 Servo servo_antebrazo;
 Servo servo_brazo;
@@ -25,6 +21,10 @@ Servo servo_garra;
 static float antebrazo_largo = -1;
 static float brazo_largo = -1;
 static bool seteado = false;
+
+void brazo_pinza_cerrar() {
+  servo_garra.write(SERVO_GARRA_CERRADO);
+}
 
 float roundDos(float numero) {
   return round(numero * 10000) / 10000;
@@ -59,8 +59,8 @@ void mover_antebrazo(int angulo){
   angulo2 = map(angulo2, 0, 180, SERVO_BRAZO_CERO_CORRECCION, SERVO_BRAZO_EXTENDIDO_CORRECCION);
 
   servo_antebrazo.write(angulo);
-  Serial.println(angulo);
-  Serial.println(angulo2);
+  // Serial.println(angulo);
+  // Serial.println(angulo2);
   delay(50);
   servo_brazo.write(angulo2);
 }
@@ -148,6 +148,7 @@ int brazo_set_pos(float x, float y, float z){
 int brazo_reposo(){
   if (!seteado) { return -1; }
   
+  Serial.println("rep");
   mover_base(90);
   mover_brazo(90);
   mover_antebrazo(90);
@@ -155,13 +156,18 @@ int brazo_reposo(){
 
 int brazo_soldar(){
   if (!seteado) { return -1; }
+  Serial.println("sold");
+  mover_antebrazo(30);
+  delay(1000);
+  mover_brazo(135);
+  delay(1000);
+  brazo_reposo();
+  delay(1000);
   // int puntos[4][3] = {{-1,-1,-1},{-1,-1,-1},{-1,-1,-1},{-1,-1,-1}}; // no recuerdo el orden
 
   // for (int i = 0; i<4; i++ ){
   //   if (brazo_set_pos(puntos[i][0], puntos[i][1], puntos[i][2]) != 0) {return -1;}
   // }
-
-  
 
   return 0;
 }
